@@ -1,5 +1,7 @@
+using AuctionService.Consumers;
 using AuctionService.Data;
 using AuctionService.Entities;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,6 +17,25 @@ builder.Services.AddDbContext<ApplicationDbContext>(
 );
 // Inject Automapper as a Service
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+// Add MassTransit configuration
+builder.Services.AddMassTransit((x) =>
+{
+    // Set an outbox (and pass the service database context).
+    x.AddEntityFrameworkOutbox<ApplicationDbContext>(options =>
+    {
+        options.QueryDelay = TimeSpan.FromSeconds(10); // Once the service bus is available, each 10 seconds attempts to deliver the message.
+        options.UsePostgres(); // Use a Postgres database.
+        options.UseBusOutbox();
+    });
+    // Configure consumers.
+    x.AddConsumersFromNamespaceContaining<AuctionCreatedFaultConsumer>();
+    // Add formatter for endpoints. (auction-event)
+    x.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("auction", false));
+    x.UsingRabbitMq((context, config) =>
+    {
+        config.ConfigureEndpoints(context);
+    });
+});
 var app = builder.Build();
 
 /*

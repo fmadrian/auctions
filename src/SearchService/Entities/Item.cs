@@ -3,7 +3,7 @@ using MongoDB.Entities;
 namespace SearchService.Entities
 {
     // Has to inherit from MongoDB entity 
-    // Because it provides ID for each document on this collection.
+    // Because it provides ID (GUID) for each document on this collection.
     public class Item : Entity
     {
         public DateTimeOffset CreatedAt { get; set; }
