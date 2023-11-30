@@ -1,4 +1,3 @@
-using Contracts;
 using MassTransit;
 using Polly;
 using Polly.Extensions.Http;

@@ -2,6 +2,7 @@ using AuctionService.Consumers;
 using AuctionService.Data;
 using AuctionService.Entities;
 using MassTransit;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -36,13 +37,25 @@ builder.Services.AddMassTransit((x) =>
         config.ConfigureEndpoints(context);
     });
 });
+// Configure JWT service.
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    // Authority is our Identity server.
+                    options.Authority = builder.Configuration["IdentityServiceUrl"]; // Identity Service (IdentityServer)
+                    options.RequireHttpsMetadata = false; // Identity server is running on HTTP (at the moment).
+                    options.TokenValidationParameters.ValidateAudience = false;
+                    options.TokenValidationParameters.NameClaimType = "username";
+
+                });
+
 var app = builder.Build();
 
 /*
      Configure the HTTP request pipeline.
          Allows us to add middleware
 */
-
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

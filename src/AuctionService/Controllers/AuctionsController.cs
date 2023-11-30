@@ -5,6 +5,7 @@ using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Contracts;
 using MassTransit;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -51,21 +52,22 @@ namespace AuctionService.Controllers
             return this._mapper.Map<AuctionDto>(result);
 
         }
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult<AuctionDto>> CreateAuction(CreateAuctionDto dto)
         {
             // 1. Map Auction.
             // Item is automatically mapped (see MappingProfiles)
             Auction auction = this._mapper.Map<Auction>(dto);
-            // TODO: Add current user as seller.
-            auction.Seller = "test";
+            // User.Identity.Name returns the username claim in the JWT.
+            auction.Seller = User.Identity.Name; // TokenValidationParameters.NameClaimType == "username" 
+                                                 // retrieves username claim as User.Identity.Name.
 
             /*
             *  When the outbox is configured
             *  2, 5, and 6 become an ACID transaction. 
             *  They all happen as a unit, or none of them happen at all.
             */
-
             // 2. Store them into the context.
             await this._applicationDbContext.Auctions.AddAsync(auction);
             // 5. Map the saved entity into a DTO.
@@ -82,6 +84,7 @@ namespace AuctionService.Controllers
             // 4. Return an address where the created object can be found, the ID of the object, and the object.
             return CreatedAtAction(nameof(GetAuctionById), new { auction.Id }, newAuctionDto);
         }
+        [Authorize]
         [HttpPut("{id}")]
         public async Task<ActionResult> UpdateAuction(Guid id, [FromBody] UpdateAuctionDto dto)
         {
@@ -93,7 +96,8 @@ namespace AuctionService.Controllers
             if (auction == null)
                 return NotFound();
 
-            // TODO: Check seller name and username.
+            // Only who created the auction is allowed to update it.
+            if (auction.Seller != User.Identity.Name) return Forbid(); // Not allowed to update this auction.
 
             // 2. Make changes (if the field on the DTO are not null)
             auction.Item.Make = dto.Make ?? auction.Item.Make;
@@ -114,6 +118,7 @@ namespace AuctionService.Controllers
             // 4. Return HTTP 200
             return Ok();
         }
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteAuction(Guid id)
         {
@@ -123,7 +128,8 @@ namespace AuctionService.Controllers
 
             if (auction == null)
                 return NotFound();
-            // TODO: Check seller ID == username
+            // Only who created the auction is allowed to delete it.
+            if (auction.Seller != User.Identity.Name) return Forbid(); // Not allowed to delete this auction.
 
             // 2. Delete auction from context.
             this._applicationDbContext.Auctions.Remove(auction);
