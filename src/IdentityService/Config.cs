@@ -30,6 +30,19 @@ public static class Config
                 RedirectUris = {"https://www.getpostman.com/oauth2/callback"},
                 ClientSecrets = new Secret[]{new Secret("NotASecret".Sha256())},
                 AllowedGrantTypes =  {GrantType.ResourceOwnerPassword}, // Authentication flow.
+            },
+            // NextJS application client.
+            new Client(){
+                ClientId = "auctionsNextApp",
+                ClientName = "auctionsNextApp",
+                ClientSecrets = {new Secret("secret".Sha256())},
+                AllowedGrantTypes = GrantTypes.CodeAndClientCredentials, // For a React Native app we would use Code.
+                RequirePkce = false, // On a React Native app we would have to use PKCE.
+                RedirectUris = {"http://localhost:3000/api/auth/callback/id-server"},
+                AllowOfflineAccess = true,
+                AllowedScopes = {"openid", "profile", "auctionApp"},
+                AccessTokenLifetime = 3600*24*30 // Default is 3600 (1 hour). Token not be longer than an hour (it can be in development).
             }
         };
+
 }
