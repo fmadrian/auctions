@@ -52,7 +52,7 @@ namespace SearchService.Controllers
 
             // Define pagination parameters.
             query.PageNumber(searchParams.PageNumber);
-            query.PageSize(searchParams.Size);
+            query.PageSize(searchParams.PageSize);
             // Execute the query and return the result.
             var result = await query.ExecuteAsync();
             return Ok(new
