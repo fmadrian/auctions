@@ -16,10 +16,11 @@ public class AuctionSvcHttpClient
     public async Task<List<Item>> GetItemsForSearchDb()
     {
         // Date of the last updated function.
-        var lastUpdated = await DB.Find<Item, string>()
+        Item item = await DB.Find<Item>()
         .Sort(x => x.Descending(x => x.UpdatedAt))
-        .Project(x => x.UpdatedAt.ToString())
+        // .Project(x => x.UpdatedAt.ToString())
         .ExecuteFirstAsync();
+        string lastUpdated = item.ToString(); // Fixes formatting issue when converting DateTimeOffset.
 
         // Queries search endpoint on AuctionService and returns the items.
         // It returns items added from the last time the database was queried.
