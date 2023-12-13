@@ -1,8 +1,8 @@
-"use client";
+"use client"; // 'use client' whenever the we need the client to execute some code.
 import React from "react";
 import Countdown, { zeroPad } from "react-countdown";
 
-// Renderer callback with condition.
+// Renderer callback with condition
 const renderer = ({
   days,
   hours,
@@ -22,7 +22,7 @@ const renderer = ({
       className={`
         border-2 border-white text-white py-1 px-2 rounded-lg flex justify-center 
         ${
-          // Add red color if auction has less than 10 hours.
+          // Conditional rendering
           completed
             ? "bg-red-600"
             : days === 0 && hours <= 10

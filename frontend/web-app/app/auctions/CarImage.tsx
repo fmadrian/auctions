@@ -15,17 +15,13 @@ export default function CarImage({ imageUrl }: Props) {
         alt="image"
         fill
         priority // Add priority on images that need it
-        // Adds a special hover effect.
+        // The first 4 classes give the special hover effect.
         className={`object-cover group-hover:opacity-75 duration-700 ease-in-out 
         
-            ${
-              isLoading
-                ? "grayscale blur-2xl scale-110"
-                : "grayscale-0 blur-0 scale-100"
-            }
+            ${isLoading ? "grayscale blur-2xl scale-110" : "grayscale-0 blur-0 scale-100"}
         `}
         sizes="(max-width:768px) 100vw, (max-width:1200px) 50vw 25cw" // Always define sizes.
-        onLoadingComplete={() => setLoading(false)}
+        onLoadingComplete={()=> setLoading(false)}
       />
     </div>
   );

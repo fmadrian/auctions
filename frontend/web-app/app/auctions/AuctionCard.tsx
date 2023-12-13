@@ -1,11 +1,12 @@
 import React from "react";
+import Image from "next/image";
 import CountdownTimer from "./CountdownTimer";
 import CarImage from "./CarImage";
 import { Auction } from "../types/AppTypes";
 
 // 1. Create a type for the props we are expecting to receive.
 type Props = {
-  auction: Auction;
+  auction: Auction; 
 };
 
 export default function AuctionCard({ auction }: Props) {
