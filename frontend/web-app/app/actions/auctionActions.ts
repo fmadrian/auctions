@@ -1,32 +1,37 @@
 "use server"; // Indicate this actions are executed on the server side.
+import { FieldValues } from "react-hook-form";
+import { fetchWrapper } from "../lib/fetchWrapper";
 import { Auction, PagedResult } from "../types/AppTypes";
-import { getTokenWorkaround } from "./authActions";
+import { revalidatePath } from "next/cache";
 // Actions folder could be equivalent to services.
 // Guarantees that execution of code stays tied to client side.
 
-export async function getData(query:string) : Promise<PagedResult<Auction>> {
-  const response = await fetch(`http://localhost:6001/search${query}`);
-  if (!response.ok) throw new Error("Failed to fetch listings data.");
-
-  return response.json();
+export async function getData(query: string): Promise<PagedResult<Auction>> {
+  return await fetchWrapper.get(`search${query}`);
 }
 
-export async function UpdateAuctionTest(){
+export async function updateAuctionTest() {
   const data = {
-    mileage: Math.floor(Math.random() * 100000) + 1 
-  }
-  const token = await getTokenWorkaround();
-  const res = await fetch(`http:localhost:6001/auctions/afbee524-5972-4075-8800-7d11f9d7b0a0c`, {
-    method: 'PUT',
-    headers: {
-      'Content-type': 'application/json',
-      'Authorization': `Bearer ${token?.access_token}`,
-      
+    mileage: Math.floor(Math.random() * 100000) + 1,
+  };
+  return fetchWrapper.put(
+    `auctions/afbee524-5972-4075-8800-7d11f9d7b0a0c`,
+    data
+  );
+}
 
-    },
-    body: JSON.stringify(data)
-  });
-  if(!res.ok) return {status: res.status, message: res.statusText}
-
-  return res.statusText;
+export async function createAuction(data: FieldValues) {
+  return await fetchWrapper.post("auctions", data);
+}
+export async function getDetailedViewData(id: string): Promise<Auction> {
+  return await fetchWrapper.get(`auctions/${id}`);
+}
+export async function updateAuction(id: string, data: FieldValues) {
+  const response = await fetchWrapper.put(`auctions/${id}`, data);
+  // Bypasses cache.
+  revalidatePath(`/auctions/${id}`);
+  return response;
+}
+export async function deleteAuction(id: string) {
+  return await fetchWrapper.delet(`auctions/${id}`);
 }

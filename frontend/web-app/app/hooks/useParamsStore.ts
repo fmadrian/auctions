@@ -9,6 +9,9 @@ type State = {
     searchValue:string;
     orderBy:string;
     filterBy:string;
+    // User ID's
+    seller?:string,
+    winner?:string,
 }
 // 2. Create a type for the actions that will be supported
 type Actions = {
@@ -24,7 +27,10 @@ const initialState : State = {
     searchTerm:"",
     searchValue: "", // Value for the input field.
     orderBy:"make",
-    filterBy:"all"
+    filterBy:"all",
+    seller: undefined,
+    winner:undefined
+    
 };
 // 4. Create state store.
 // Use createWithEqualityFn instead of create to be able to use 'shallow' as equalityFn.

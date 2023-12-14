@@ -23,7 +23,9 @@ export default function Listings() {
       pageSize: state.pageSize,
       searchTerm:state.searchTerm,
       orderBy:state.orderBy,
-      filterBy:state.filterBy
+      filterBy:state.filterBy,
+      seller: state.seller,
+      winner: state.winner
     }), shallow);
     // 3. Get ACTION from application's state.
   const setParams = useParamsStore(state=>state.setParams);
