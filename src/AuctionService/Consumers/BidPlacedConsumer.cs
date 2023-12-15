@@ -14,7 +14,7 @@ public class BidPlacedConsumer : IConsumer<BidPlaced>
     {
         Console.WriteLine($"Consuming bid {context.Message.Id} placed");
         // 1. Search the auction and change the bid information
-        Auction auction = await this._dbContext.Auctions.FindAsync(context.Message.AuctionId);
+        Auction auction = await this._dbContext.Auctions.FindAsync(Guid.Parse(context.Message.AuctionId));
         int bidPlaced = context.Message.Amount;
         if (auction.CurrentHighBid == null ||
         (context.Message.BidStatus.Contains("Accepted") && bidPlaced > auction.CurrentHighBid))

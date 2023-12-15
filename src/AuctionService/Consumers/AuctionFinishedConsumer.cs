@@ -17,7 +17,7 @@ public class AuctionFinishedConsumer : IConsumer<AuctionFinished>
     {
         Console.WriteLine($"Consuming auction {context.Message.Amount} finished");
         // 1. Find the auction using the auction ID sent in the event.
-        Auction auction = await this._dbContext.Auctions.FindAsync(context.Message.AuctionId);
+        Auction auction = await this._dbContext.Auctions.FindAsync(Guid.Parse(context.Message.AuctionId));
         // 2. If the item was sold add information for the winner.
         if (context.Message.ItemSold)
         {
