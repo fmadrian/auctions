@@ -7,7 +7,7 @@ services:
       - 5432:5432
     volumes:
       - pgdata:/var/lib/postgresql/data
-  mongodb-service:
+  mongodbservice:
     image: mongo
     environment:
       - MONGO_INITDB_ROOT_USERNAME=root
@@ -46,12 +46,12 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80 # internal URL our service/application will run on.
       - RabbitMq__Host=rabbitmq # RabbitMq_Host = RabbitMq.Host | rabbitMq = name of the service (defined above).
-      - ConnectionStrings__MongoDbConnection=mongodb://root:123@mongodb-service # @mongodb-service refers to the service (defined above).
+      - ConnectionStrings__MongoDbConnection=mongodb://root:123@mongodbservice # @mongodbservice refers to the service (defined above).
       - AuctionServiceUrl="http://auction-service"
     ports:
       - 7002:80
     depends_on:
-      - mongodb-service
+      - mongodbservice
       - rabbitmq # rabbitmq service defined above
   identity-service:
     image: fsv2860/identity-service:latest
