@@ -2,6 +2,8 @@ using AutoMapper;
 using BiddingService.DTOs;
 using BiddingService.Entities;
 using BiddingService.Entities.Enums;
+using Contracts;
+using MassTransit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Entities;
@@ -13,8 +15,13 @@ namespace BiddingService.Controllers;
 public class BidsController : ControllerBase
 {
     private readonly IMapper _mapper;
+    private readonly IPublishEndpoint _publishEndpoint;
 
-    public BidsController(IMapper mapper) { this._mapper = mapper; }
+    public BidsController(IMapper mapper, IPublishEndpoint publishEndpoint)
+    {
+        this._mapper = mapper;
+        this._publishEndpoint = publishEndpoint;
+    }
     [HttpPost]
     [Authorize]
     public async Task<ActionResult<BidDto>> PlaceBid(string auctionId, int amount)
@@ -76,8 +83,11 @@ public class BidsController : ControllerBase
                 bid.BidStatus = BidStatus.TooLow;
             }
         }
-        // Store in database and return the bid.
+        // Store in database.
         await DB.SaveAsync(bid);
+        // Map bid into a BidPlaced event and send/publish it to the service bus.
+        await this._publishEndpoint.Publish(this._mapper.Map<BidPlaced>(bid));
+        // Return result.
         return Ok(this._mapper.Map<BidDto>(bid));
 
     }
