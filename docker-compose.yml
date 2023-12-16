@@ -76,6 +76,23 @@ services:
       - ASPNETCORE_URLS=http://+:80 # internal URL our service/application will run on.
     ports:
       - 6001:80
+  bidding-service:
+    image: fsv2860/bidding-service:latest
+    build:
+      context: .
+      dockerfile: src/SearchService/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80 # internal URL our service/application will run on.
+      - RabbitMq__Host=rabbitmq # RabbitMq_Host = RabbitMq.Host | rabbitMq = name of the service (defined above).
+      - ConnectionStrings__MongoDbConnection=mongodb://root:123@mongodbservice # @mongodbservice refers to the service (defined above).
+      - IdentityServiceUrl=http://identity-service
+      - GrpcAuction=http://auction-service:7777 # gRPC connection.
+    ports:
+      - 7003:80
+    depends_on:
+      - mongodbservice
+      - rabbitmq
 volumes:
   pgdata:
   mongodata:
