@@ -30,11 +30,11 @@ RUN dotnet restore auctions.sln
 ## End of common section for all services.
 
 # 6. Copy this service's app folders over (rest of the code) and all code it depends on.
-COPY src/SearchService src/SearchService
+COPY src/NotificationService src/NotificationService
 COPY src/Contracts src/Contracts
 
 # 7. Change the work directory (directory must exist before changing to it).
-WORKDIR /app/src/SearchService
+WORKDIR /app/src/NotificationService
 
 # 8. Publish this service using release configuration (-c) and release them
 # inside the directory (inside Docker's file system) app/src/out .
@@ -51,4 +51,4 @@ WORKDIR /app
 COPY --from=build /app/src/out .
 
 # 12. Specify entrypoint for this service.
-ENTRYPOINT [ "dotnet", "SearchService.dll" ]
+ENTRYPOINT [ "dotnet", "NotificationService.dll" ]
