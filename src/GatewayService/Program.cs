@@ -5,7 +5,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddReverseProxy()
         .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
 
-// Configure JWT service.
+// 2. Configure JWT service.
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
@@ -17,12 +17,28 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
                 });
 
+// 3. Add CORS configuration.
+builder.Services.AddCors(options =>
+{
+        // 4.1. Add a custom policy.
+        options.AddPolicy("customPolicy", policy =>
+        {
+                // Allow this into the CORS headers we send back
+                policy.AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials()
+                .WithOrigins(builder.Configuration["ClientApp"]);
+        });
+});
 
 var app = builder.Build();
 
+
+// 4. Add the middelware.
+app.UseCors();
+
 app.MapReverseProxy();
 
-// Add middleware
 app.UseAuthentication();
 app.UseAuthorization();
 
