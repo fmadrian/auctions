@@ -86,7 +86,7 @@ services:
     image: fsv2860/bidding-service:latest
     build:
       context: .
-      dockerfile: src/SearchService/Dockerfile
+      dockerfile: src/BiddingService/Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80 # internal URL our service/application will run on.
