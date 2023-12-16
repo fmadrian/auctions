@@ -1,0 +1,37 @@
+// 1. Define syntax.
+syntax = "proto3";
+// 2. Namespace the generated class will be in.
+option csharp_namespace = "AuctionService";
+// 3. Specify the service
+service GrpcAuction {
+    rpc GetAuction (GetAuctionRequest) returns (GrpcAuctionResponse) {}
+}
+// 4. Message the object gRPC server receives.
+message GetAuctionRequest{
+    string  id = 1;
+}
+message GrpcAuctionModel{
+    string id = 1;
+    string seller = 2;
+    string auctionEnd = 3;
+    DecimalValue reservePrice = 4;
+}
+// 5. Message returned to gRPC client.
+message GrpcAuctionResponse{
+    GrpcAuctionModel auction = 1;
+}
+
+// Decimal type is not directly supported by Protobuf.
+// Microsoft's decimal implementation.
+// https://learn.microsoft.com/en-us/dotnet/architecture/grpc-for-wcf-developers/protobuf-data-types#decimals
+
+// Example: 12345.6789 -> { units = 12345, nanos = 678900000 }
+message DecimalValue {
+    // Whole units part of the amount
+    int64 units = 1;
+
+    // Nano units of the amount (10^-9)
+    // Must be same sign as units
+    sfixed32 nanos = 2;
+}
+// Conversion defined in file DecimalValue.cs

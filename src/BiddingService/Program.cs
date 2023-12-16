@@ -46,7 +46,7 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 // Add background services.
 builder.Services.AddHostedService<CheckAuctionFinished>();
-
+builder.Services.AddScoped<GrpcAuctionClient>();
 var app = builder.Build();
 
 app.UseAuthorization();

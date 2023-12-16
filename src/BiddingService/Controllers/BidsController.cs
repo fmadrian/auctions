@@ -2,6 +2,7 @@ using AutoMapper;
 using BiddingService.DTOs;
 using BiddingService.Entities;
 using BiddingService.Entities.Enums;
+using BiddingService.Services;
 using Contracts;
 using MassTransit;
 using Microsoft.AspNetCore.Authorization;
@@ -16,11 +17,14 @@ public class BidsController : ControllerBase
 {
     private readonly IMapper _mapper;
     private readonly IPublishEndpoint _publishEndpoint;
+    private readonly GrpcAuctionClient _grpcClient;
 
-    public BidsController(IMapper mapper, IPublishEndpoint publishEndpoint)
+    public BidsController(IMapper mapper, IPublishEndpoint publishEndpoint, GrpcAuctionClient grpcClient)
     {
         this._mapper = mapper;
         this._publishEndpoint = publishEndpoint;
+        this._grpcClient = grpcClient;
+
     }
     [HttpPost]
     [Authorize]
