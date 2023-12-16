@@ -1,11 +1,14 @@
 using MassTransit;
+using NotificationService.Consumers;
 using NotificationService.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add MassTransit configuration
+// 3. Add MassTransit configuration
 builder.Services.AddMassTransit((x) =>
 {
+    // Register consumers.
+    x.AddConsumersFromNamespaceContaining<AuctionCreatedConsumer>();
     // Add formatter for endpoints.
     x.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("notifications", false));
     x.UsingRabbitMq((context, config) =>
@@ -20,12 +23,12 @@ builder.Services.AddMassTransit((x) =>
     });
 });
 
-// Add SignalR service.
+// 1. Add SignalR service.
 builder.Services.AddSignalR();
 
 var app = builder.Build();
 
-// Tell application where the hub is.
+// 2. Tell application where the hub is.
 app.MapHub<NotificationHub>("/notifications");
 
 app.Run();
