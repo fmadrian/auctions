@@ -1,3 +1,4 @@
+using System.Web;
 using MongoDB.Entities;
 using SearchService.Entities;
 
@@ -20,8 +21,12 @@ public class AuctionSvcHttpClient
         .Sort(x => x.Descending(x => x.UpdatedAt))
         // .Project(x => x.UpdatedAt.ToString())
         .ExecuteFirstAsync();
-        string lastUpdated = item.ToString(); // Fixes formatting issue when converting DateTimeOffset.
-
+        // If the database has never been updated, we use a default datetime.
+        string lastUpdated = item == null
+            ? DateTimeOffset.MinValue.ToString()
+            : item.ToString(); // Fixes formatting issue when converting DateTimeOffset.
+        // Encode datetime before passing it as parameter.
+        lastUpdated = HttpUtility.UrlEncode(lastUpdated);
         // Queries search endpoint on AuctionService and returns the items.
         // It returns items added from the last time the database was queried.
         string endpointToQuery = $"{_config["AuctionServiceUrl"]}/api/auctions?date={lastUpdated}";
