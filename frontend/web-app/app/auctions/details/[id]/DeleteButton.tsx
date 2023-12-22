@@ -1,14 +1,13 @@
 "use client";
 import { deleteAuction } from "@/app/actions/auctionActions";
-import { getCurrentUser } from "@/app/actions/authActions";
 import { Button } from "flowbite-react";
 import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import toast from "react-hot-toast";
 type Props = {
   id: string;
 };
-export default async function DeleteButton({ id }: Props) {
+export default function DeleteButton({ id }: Props) {
   const [isLoading, setIsLoading] = useState(false);
   // const [username, setUsername] = useState("");
   const router = useRouter();

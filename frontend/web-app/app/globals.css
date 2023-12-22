@@ -2,6 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
-.react-datepicker-wrapper{
-    width: 100%;
+.react-datepicker-wrapper {
+  width: 100%;
+}
+
+@layer components {
+  /* Custom classes */
+  .input-custom {
+    @apply /* Apply this rules.*/
+            flex-grow
+            pl-5
+            bg-transparent
+            focus:outline-none
+            border-transparent
+            focus:border-transparent
+            focus:ring-0;
+  }
 }

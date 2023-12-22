@@ -1,7 +1,7 @@
 "use server"; // Indicate this actions are executed on the server side.
 import { FieldValues } from "react-hook-form";
 import { fetchWrapper } from "../lib/fetchWrapper";
-import { Auction, PagedResult } from "../types/AppTypes";
+import { Auction, Bid, PagedResult } from "../types/AppTypes";
 import { revalidatePath } from "next/cache";
 // Actions folder could be equivalent to services.
 // Guarantees that execution of code stays tied to client side.
@@ -34,4 +34,14 @@ export async function updateAuction(id: string, data: FieldValues) {
 }
 export async function deleteAuction(id: string) {
   return await fetchWrapper.delet(`auctions/${id}`);
+}
+export async function getBidsForAuction(auctionId: string): Promise<Bid[]> {
+  return await fetchWrapper.get(`bids/${auctionId}`);
+}
+export async function placeBidForAuction(auctionId: string, amount: number) {
+  // Send an empty body for this request (parameters passed in the request, design decision).
+  return await fetchWrapper.post(
+    `bids?auctionId=${auctionId}&amount=${amount}`,
+    {}
+  );
 }

@@ -9,8 +9,10 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@microsoft/signalr": "^8.0.0",
     "@tailwindcss/aspect-ratio": "^0.4.2",
     "@types/react-datepicker": "^4.19.4",
+    "date-fns": "^3.0.4",
     "flowbite": "^2.2.0",
     "flowbite-react": "^0.7.0",
     "next": "14.0.3",

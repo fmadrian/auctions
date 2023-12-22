@@ -1,6 +1,8 @@
 "use client"; // 'use client' whenever the we need the client to execute some code.
 import React from "react";
 import Countdown, { zeroPad } from "react-countdown";
+import { useBidStore } from "../hooks/useBidStore";
+import { usePathname } from "next/navigation";
 
 // Renderer callback with condition
 const renderer = ({
@@ -54,9 +56,22 @@ type Props = {
 };
 
 export default function CountdownTimer({ auctionEnd }: Props) {
+  const setOpen = useBidStore((state) => state.setOpen);
+  const pathname = usePathname();
+
+  function auctionFinished() {
+    // If the user is in the auction at the moment the auction finishes, it closes it. (in the application's state)
+    if (pathname.startsWith("/auctions/details")) {
+      setOpen(false);
+    }
+  }
   return (
     <div>
-      <Countdown date={auctionEnd} renderer={renderer} />
+      <Countdown
+        date={auctionEnd}
+        renderer={renderer}
+        onComplete={auctionFinished}
+      />
     </div>
   );
 }

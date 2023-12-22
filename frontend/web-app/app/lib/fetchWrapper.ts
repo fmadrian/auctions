@@ -39,16 +39,22 @@ async function delet(url: string) {
   const response = await fetch(`${baseUrl}${url}`, requestOptions);
   return await handleResponse(response);
 }
-async function handleResponse(response: Response) {
+async function handleResponse(response: Response): Promise<any> {
   const text = await response.text();
-  const data = text && JSON.parse(text);
+  let data = "";
+  try {
+    data = JSON.parse(text);
+  } catch (error) {
+    // Couldn't parse error use text returned as error.
+    data = text;
+  }
 
   if (response.ok) {
     return data || response.statusText;
   } else {
     const error = {
       status: response.status,
-      message: response.statusText,
+      message: typeof data === "string" ? data : response.statusText, // If we have a string as an error, show it.
     };
     return { error };
   }

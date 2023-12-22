@@ -1,13 +1,13 @@
 import React from "react";
-import Image from "next/image";
 import CountdownTimer from "./CountdownTimer";
 import CarImage from "./CarImage";
 import { Auction } from "../types/AppTypes";
 import Link from "next/link";
+import CurrentBid from "./CurrentBid";
 
 // 1. Create a type for the props we are expecting to receive.
 type Props = {
-  auction: Auction; 
+  auction: Auction;
 };
 
 export default function AuctionCard({ auction }: Props) {
@@ -19,6 +19,12 @@ export default function AuctionCard({ auction }: Props) {
           <CarImage imageUrl={auction.imageUrl} />
           <div className="absolute bottom-2 left-2">
             <CountdownTimer auctionEnd={auction.auctionEnd} />
+          </div>
+          <div className="absolute top-2 right-2">
+            <CurrentBid
+              reservePrice={auction.reservePrice}
+              amount={auction.currentHighBid}
+            />
           </div>
         </div>
       </div>
