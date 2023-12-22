@@ -35,7 +35,7 @@ var app = builder.Build();
 
 
 // 4. Add the middelware.
-app.UseCors();
+app.UseCors("customPolicy"); // Add policy's name or the default policy will be applied.
 
 app.MapReverseProxy();
 
