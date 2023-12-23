@@ -5,7 +5,7 @@ import React from "react";
 type Props = {
   bid: Bid;
 };
-export default function ({ bid }: Props) {
+export default function BidItem({ bid }: Props) {
   function getBidInfo() {
     let bgColor = "",
       text = "";

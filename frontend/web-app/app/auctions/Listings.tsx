@@ -64,7 +64,7 @@ export default function Listings() {
           setIsLoading(false);
         });
     },
-    [url]
+    [url, setData]
   ); // If this array was empty, it means that THIS CODE RUNS ONCE (because we are NOT BINDING ANY VARIABLES TO IT).
   // But we are binding pageSize, so EACH TIME ANY OF THE BINDED VARIABLES CHANGES,
   // THE CODE RUNS AGAIN AND THE COMPONENT GETS RE-RENDERED.

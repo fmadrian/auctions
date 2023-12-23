@@ -43,7 +43,7 @@ export default function BidList({ user, auction }: Props) {
   // 8. When we load the component for the first check if the auction is open for bids
   useEffect(() => {
     setOpen(openForBids);
-  }, [openForBids]);
+  }, [openForBids, setOpen]);
 
   // 7. Indicate component to check for bids.
   useEffect(() => {
@@ -67,6 +67,7 @@ export default function BidList({ user, auction }: Props) {
       </div>
     );
   } else {
+    console.log(open, user);
     return (
       <div className="rounded-lg shadow-md">
         <div className="py-2 px-4 bg-white">
@@ -102,7 +103,7 @@ export default function BidList({ user, auction }: Props) {
             </div>
           ) : user && user.username === auction.seller ? (
             <div className="flex items-center justify-center p-2 text-lg font-semibold">
-              You can't bid on your own auction
+              {`You can't bid on your own auction`}
             </div>
           ) : (
             <BidForm auctionId={auction.id} highBid={highBid} />

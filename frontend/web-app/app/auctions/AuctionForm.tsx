@@ -32,7 +32,7 @@ export default function AuctionForm({ auction }: Props) {
       reset({ make, model, color, mileage, year });
     }
     setFocus("make"); // Focus on the first field.
-  }, [setFocus]);
+  }, [setFocus, auction, reset]);
   async function onSubmit(data: FieldValues) {
     try {
       let id = "";
