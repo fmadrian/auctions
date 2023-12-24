@@ -99,8 +99,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Docker # reads from appsettings.Docker.json
       - ASPNETCORE_URLS=http://+:80 # internal URL our service/application will run on.
-      # IMPORTANT: By default, browsers attempt to access this address using 'https' (change it to 'http').
-      - ClientApp=http://app.auctions.com # URL the browser will try to enter from. Must match the web application's VIRTUAL_HOST.
+      - ClientApp=https://app.auctions.com # URL the browser will try to enter from. Must match the web application's VIRTUAL_HOST.
       - VIRTUAL_HOST=api.auctions.com
     networks:
       custom_network:
@@ -167,10 +166,12 @@ services:
     image: nginxproxy/nginx-proxy
     ports:
       - 80:80
+      - 443:443
     networks:
       custom_network:
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
+      - ./devcerts:/etc/nginx/certs # Copy files inside directory 'devcerts' into directory where certificates have to be located.
 volumes:
   pgdata:
   mongodata:
