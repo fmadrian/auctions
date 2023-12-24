@@ -82,9 +82,10 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Docker
       - ASPNETCORE_URLS=http://+:80 # internal URL our service/application will run on.
+      - ClientApp=http://app.auctions.com
       - ConnectionStrings__DefaultConnection=Server=postgres:5432;User Id=postgres;Password=123;Database=identity
-    ports:
-      - 80:80
+      # Virtual host address
+      - VIRTUAL_HOST=id.auctions.com
     depends_on:
       - postgres
     networks:
@@ -98,8 +99,9 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Docker # reads from appsettings.Docker.json
       - ASPNETCORE_URLS=http://+:80 # internal URL our service/application will run on.
-    ports:
-      - 6001:80
+      # IMPORTANT: By default, browsers attempt to access this address using 'https' (change it to 'http').
+      - ClientApp=http://app.auctions.com # URL the browser will try to enter from. Must match the web application's VIRTUAL_HOST.
+      - VIRTUAL_HOST=api.auctions.com
     networks:
       custom_network:
   bidding-service:
@@ -137,31 +139,38 @@ services:
     networks:
       custom_network:
   web-app:
-    image: fsv2860/auctions-webapp:latest
+    image: fsv2860/auctions-webapp
     build:
       context: .
       dockerfile: frontend/web-app/Dockerfile
     volumes:
       - webappdata:/var/lib/web/data # Web app needs a volume.
-    ports:
-      - 3000:3000
     extra_hosts:
-      - id.auctions.com:10.5.0.200
+      - id.auctions.com:10.5.0.200 # host:static_ip_address.
     environment:
       # 1. NextAuth default variables
       - NEXTAUTH_SECRET=DzKO3FbjwvIJg5o1XW7bPTR5Ym72sXzY
       # 1.1. Split NEXTAUTH_URL into internal and external.
-      - NEXTAUTH_URL=http://localhost:3000 # URL used by browser / web application.
+      - NEXTAUTH_URL=http://app.auctions.com # URL used by browser / web application.
       - NEXTAUTH_URL_INTERNAL_URL=http://web-app:3000 # URL used internally by other Docker services.
       # 2. Server side variables.
       - API_URL=http://gateway-service/
-      - ID_URL=http://id.auctions.com # host defined inside host file.
-
+      - ID_URL=http://id.auctions.com # Identity Service address defined inside 'hosts' file.
       # Client side variables.
       - NEXT_PUBLIC_NOTIFY_URL=http://gateway-service/notifications
+      # Virtual host address and virtual port.
+      - VIRTUAL_HOST=app.auctions.com
+      - VIRTUAL_PORT=3000
     networks:
       custom_network:
-
+  nginx-proxy:
+    image: nginxproxy/nginx-proxy
+    ports:
+      - 80:80
+    networks:
+      custom_network:
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
 volumes:
   pgdata:
   mongodata:
