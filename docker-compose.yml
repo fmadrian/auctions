@@ -1,3 +1,8 @@
+networks:
+  custom_network: # Network name.
+    ipam: # IP Address Manager (ipam).
+      config:
+        - subnet: 10.5.0.0/16 # Range of addresses a container/service inside the network might have.
 services:
   postgres:
     image: postgres
@@ -7,6 +12,8 @@ services:
       - 5432:5432
     volumes:
       - pgdata:/var/lib/postgresql/data
+    networks:
+      custom_network:
   mongodbservice:
     image: mongo
     environment:
@@ -16,11 +23,15 @@ services:
       - 27017:27017
     volumes:
       - mongodata:/var/lib/mongodb/data
+    networks:
+      custom_network:
   rabbitmq:
     image: rabbitmq:3-management-alpine
     ports:
       - 5672:5672
       - 15672:15672
+    networks:
+      custom_network:
   auction-service:
     image: fsv2860/auction-service:latest
     build: # build context
@@ -43,6 +54,8 @@ services:
     depends_on:
       - postgres # postgres service defined above
       - rabbitmq # rabbitmq service defined above
+    networks:
+      custom_network:
   search-service:
     image: fsv2860/search-service:latest
     build:
@@ -59,6 +72,8 @@ services:
     depends_on:
       - mongodbservice
       - rabbitmq # rabbitmq service defined above
+    networks:
+      custom_network:
   identity-service:
     image: fsv2860/identity-service:latest
     build:
@@ -69,9 +84,12 @@ services:
       - ASPNETCORE_URLS=http://+:80 # internal URL our service/application will run on.
       - ConnectionStrings__DefaultConnection=Server=postgres:5432;User Id=postgres;Password=123;Database=identity
     ports:
-      - 5000:80
+      - 80:80
     depends_on:
       - postgres
+    networks:
+      custom_network:
+        ipv4_address: 10.5.0.200 # Static address service/container will have inside the network.
   gateway-service:
     image: fsv2860/gateway-service:latest
     build:
@@ -82,6 +100,8 @@ services:
       - ASPNETCORE_URLS=http://+:80 # internal URL our service/application will run on.
     ports:
       - 6001:80
+    networks:
+      custom_network:
   bidding-service:
     image: fsv2860/bidding-service:latest
     build:
@@ -99,6 +119,8 @@ services:
     depends_on:
       - mongodbservice
       - rabbitmq # rabbitmq service defined above
+    networks:
+      custom_network:
   notification-service:
     image: fsv2860/notification-service:latest
     build:
@@ -112,6 +134,8 @@ services:
       - 7004:80
     depends_on:
       - rabbitmq # rabbitmq service defined above
+    networks:
+      custom_network:
   web-app:
     image: fsv2860/auctions-webapp:latest
     build:
@@ -121,14 +145,22 @@ services:
       - webappdata:/var/lib/web/data # Web app needs a volume.
     ports:
       - 3000:3000
+    extra_hosts:
+      - id.auctions.com:10.5.0.200
     environment:
+      # 1. NextAuth default variables
       - NEXTAUTH_SECRET=DzKO3FbjwvIJg5o1XW7bPTR5Ym72sXzY
-      - NEXTAUTH_URL=http://web-app
-      # Server side variables.
+      # 1.1. Split NEXTAUTH_URL into internal and external.
+      - NEXTAUTH_URL=http://localhost:3000 # URL used by browser / web application.
+      - NEXTAUTH_URL_INTERNAL_URL=http://web-app:3000 # URL used internally by other Docker services.
+      # 2. Server side variables.
       - API_URL=http://gateway-service/
-      - ID_URL=http://identity-service
+      - ID_URL=http://id.auctions.com # host defined inside host file.
+
       # Client side variables.
       - NEXT_PUBLIC_NOTIFY_URL=http://gateway-service/notifications
+    networks:
+      custom_network:
 
 volumes:
   pgdata:

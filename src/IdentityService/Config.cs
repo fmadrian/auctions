@@ -17,7 +17,7 @@ public static class Config
             new ApiScope("auctionApp", "Auction app full access.")
         };
 
-    public static IEnumerable<Client> Clients =>
+    public static IEnumerable<Client> Clients(IConfiguration configuration) =>
         new Client[]
         {
             // 1. Create a new client
@@ -38,7 +38,7 @@ public static class Config
                 ClientSecrets = {new Secret("secret".Sha256())},
                 AllowedGrantTypes = GrantTypes.CodeAndClientCredentials, // For a React Native app we would use Code.
                 RequirePkce = false, // On a React Native app we would have to use PKCE.
-                RedirectUris = {"http://localhost:3000/api/auth/callback/id-server"},
+                RedirectUris = {configuration["ClientApp"]+ "/api/auth/callback/id-server" }, // Get the client app settings from the environment variables.
                 AllowOfflineAccess = true,
                 AllowedScopes = {"openid", "profile", "auctionApp"},
                 AccessTokenLifetime = 3600*24*30, // Default is 3600 (1 hour). Token should not be longer than an hour (it can be in development).
