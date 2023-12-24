@@ -22,15 +22,25 @@ export default function SignalRProvider({ children, user }: Props) {
 
   const setCurrentPrice = useAuctionStore((state) => state.setCurrentPrice);
   const addBid = useBidStore((state) => state.addBid);
+
+  // ISSUE: Can't properly provide NEXT_PUBLIC_ env variables on different environments.
+  // https://github.com/vercel/next.js/discussions/17641
+
+  // WORKAROUND: Provide a hardcoded URL when we are in production. If we are not in production, use the .env variable
+  const apiUrl =
+    process.env.NODE_ENV === "production"
+      ? "https://api.auctions.com/notifications"
+      : process.env.NEXT_PUBLIC_NOTIFY_URL;
+
   // 2. Set the connection.
   useEffect(() => {
     const newConnection = new HubConnectionBuilder()
-      .withUrl(process.env.NEXT_PUBLIC_NOTIFY_URL!)
+      .withUrl(apiUrl!)
       .withAutomaticReconnect() // Automatically reconnect if there is an issue.
       .build();
 
     setConnection(newConnection);
-  }, []); // We need this to be called ONLY ONCE.
+  }, [apiUrl]); // We need this to be called ONLY ONCE.
   // 3. Check and start the connection
   useEffect(() => {
     if (connection) {
