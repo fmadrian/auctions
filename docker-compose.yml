@@ -112,6 +112,25 @@ services:
       - 7004:80
     depends_on:
       - rabbitmq # rabbitmq service defined above
+  web-app:
+    image: fsv2860/auctions-webapp:latest
+    build:
+      context: .
+      dockerfile: frontend/web-app/Dockerfile
+    volumes:
+      - webappdata:/var/lib/web/data # Web app needs a volume.
+    ports:
+      - 3000:3000
+    environment:
+      - NEXTAUTH_SECRET=DzKO3FbjwvIJg5o1XW7bPTR5Ym72sXzY
+      - NEXTAUTH_URL=http://web-app
+      # Server side variables.
+      - API_URL=http://gateway-service/
+      - ID_URL=http://identity-service
+      # Client side variables.
+      - NEXT_PUBLIC_NOTIFY_URL=http://gateway-service/notifications
+
 volumes:
   pgdata:
   mongodata:
+  webappdata:
