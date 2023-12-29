@@ -1,5 +1,7 @@
 using AuctionService.Consumers;
 using AuctionService.Data;
+using AuctionService.Data.Repositories;
+using AuctionService.Data.Repositories.Interfaces;
 using AuctionService.Entities;
 using AuctionService.Services;
 using MassTransit;
@@ -17,6 +19,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(
         options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
     }
 );
+
 // Inject Automapper as a Service
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 // Add MassTransit configuration
@@ -57,6 +60,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 });
 // Add gRPC service
 builder.Services.AddGrpc();
+
+// Add/Link repositories
+// Has to be on the same scope as the database context.
+builder.Services.AddScoped<IAuctionRepository, AuctionRepository>();
 var app = builder.Build();
 
 /*
