@@ -9,9 +9,10 @@ using Microsoft.Extensions.DependencyInjection;
 namespace AuctionService.IntegrationTests;
 // By inheriting from IClassFixture<CustomWebAppFactory>, we share 
 // the same instance of CustomWebAppFactory (and therefore the test database) across all the tests.
-public class AuctionControllerTests : IClassFixture<CustomWebAppFactory>, IAsyncLifetime
+[Collection("SharedCollection")]
+public class AuctionControllerTests : IAsyncLifetime
 {
-    // 1. Inject web factory and http client.
+    // 1. Inject web factory and create http client.
     private readonly CustomWebAppFactory _factory;
     private readonly HttpClient _httpClient;
     public AuctionControllerTests(CustomWebAppFactory factory)
@@ -83,7 +84,7 @@ public class AuctionControllerTests : IClassFixture<CustomWebAppFactory>, IAsync
     public async Task CreateAuction_WithNoAuth_Returns401Unauthorized()
     {
         // 1. Arrange
-        CreateAuctionDto dto = this.GetAuctionForCreate();
+        CreateAuctionDto dto = TestDataHelper.GetAuctionForCreate();
         // 2. Act
         var response = await this._httpClient.PostAsJsonAsync($"api/auctions", dto);
         // 3. Assert
@@ -95,7 +96,7 @@ public class AuctionControllerTests : IClassFixture<CustomWebAppFactory>, IAsync
 
         // 1. Arrange
         string username = "testUsername";
-        CreateAuctionDto dto = this.GetAuctionForCreate();
+        CreateAuctionDto dto = TestDataHelper.GetAuctionForCreate();
         // 2. Act
         // 2.1. Pass the fake bearer token in the request.
         this._httpClient.SetFakeJwtBearerToken(AuthHelper.GetBearerForUser(username));
@@ -114,7 +115,7 @@ public class AuctionControllerTests : IClassFixture<CustomWebAppFactory>, IAsync
 
         // 1. Arrange
         string username = "testUsername";
-        CreateAuctionDto dto = this.GetAuctionForCreate(false); // Returns invalid DTO.
+        CreateAuctionDto dto = TestDataHelper.GetAuctionForCreate(false); // Returns invalid DTO.
         // 2. Act
         // 2.1. Pass the fake bearer token in the request.
         this._httpClient.SetFakeJwtBearerToken(AuthHelper.GetBearerForUser(username));
@@ -133,7 +134,7 @@ public class AuctionControllerTests : IClassFixture<CustomWebAppFactory>, IAsync
         string username = auctionToBeUpdated.Seller; // Should be 'bob'.
         string id = auctionToBeUpdated.Id.ToString();
         this._httpClient.SetFakeJwtBearerToken(AuthHelper.GetBearerForUser(username));
-        UpdateAuctionDto dto = this.GetAuctionForUpdate();
+        UpdateAuctionDto dto = TestDataHelper.GetAuctionForUpdate();
         // 2. Act
         HttpResponseMessage response = await this._httpClient.PutAsJsonAsync($"api/auctions/{id}", dto);
         // 3. Assert status code.
@@ -147,7 +148,7 @@ public class AuctionControllerTests : IClassFixture<CustomWebAppFactory>, IAsync
         Auction auctionToBeUpdated = DbHelper.GetAuctionsForTest()[0];
         string username = "aDifferentUser", id = auctionToBeUpdated.Id.ToString();
         this._httpClient.SetFakeJwtBearerToken(AuthHelper.GetBearerForUser(username));
-        UpdateAuctionDto dto = this.GetAuctionForUpdate();
+        UpdateAuctionDto dto = TestDataHelper.GetAuctionForUpdate();
         // 2. Act
         HttpResponseMessage response = await this._httpClient.PutAsJsonAsync($"api/auctions/{id}", dto);
         // 3. Assert status code.
@@ -160,7 +161,7 @@ public class AuctionControllerTests : IClassFixture<CustomWebAppFactory>, IAsync
         Auction auctionToBeUpdated = DbHelper.GetAuctionsForTest()[0];
         string username = auctionToBeUpdated.Seller, id = auctionToBeUpdated.Id.ToString();
         this._httpClient.SetFakeJwtBearerToken(AuthHelper.GetBearerForUser(username));
-        UpdateAuctionDto dto = this.GetAuctionForUpdate(false);
+        UpdateAuctionDto dto = TestDataHelper.GetAuctionForUpdate(false);
         // 2. Act
         HttpResponseMessage response = await this._httpClient.PutAsJsonAsync($"api/auctions/{id}", dto);
         // 3. Assert status code.
@@ -173,7 +174,7 @@ public class AuctionControllerTests : IClassFixture<CustomWebAppFactory>, IAsync
         this._httpClient.SetFakeJwtBearerToken(AuthHelper.GetBearerForUser(username));
         // Pass a made up GUID to ensure the test returns the expected result.
         string id = Guid.NewGuid().ToString();
-        UpdateAuctionDto dto = this.GetAuctionForUpdate(true);
+        UpdateAuctionDto dto = TestDataHelper.GetAuctionForUpdate(true);
         // 2. Act
         HttpResponseMessage response = await this._httpClient.PutAsJsonAsync($"api/auctions/{id}", dto);
         // 3. Assert status code.
@@ -184,7 +185,7 @@ public class AuctionControllerTests : IClassFixture<CustomWebAppFactory>, IAsync
     {
         // We are attempting to access the endpoint without a JWT.
         string id = DbHelper.GetAuctionsForTest()[0].Id.ToString(); // Could be any GUID, not relevant for this test.
-        UpdateAuctionDto dto = this.GetAuctionForUpdate(true);
+        UpdateAuctionDto dto = TestDataHelper.GetAuctionForUpdate(true);
         // 2. Act
         HttpResponseMessage response = await this._httpClient.PutAsJsonAsync($"api/auctions/{id}", dto);
         // 3. Assert status code.
@@ -270,39 +271,6 @@ public class AuctionControllerTests : IClassFixture<CustomWebAppFactory>, IAsync
         // 2.2. Call reinitialize method.
         DbHelper.ReinitDbForTests(dbContext);
         return Task.CompletedTask;
-    }
-    #endregion
-
-    #region Internal auction creation methods 
-
-    private CreateAuctionDto GetAuctionForCreate(bool isValid = true)
-    {
-        return new CreateAuctionDto()
-        {
-            Make = isValid ? "testMake" : null,
-            Model = "testModel",
-            ImageUrl = "testImageUrl",
-            Mileage = 10,
-            Year = 20,
-            ReservePrice = 30,
-            Color = "testColor",
-            AuctionEnd = DateTimeOffset.UtcNow.AddDays(1)
-        };
-    }
-    private UpdateAuctionDto GetAuctionForUpdate(bool isValid = true)
-    {
-        if (!isValid)
-        {
-            return new UpdateAuctionDto() { };
-        }
-        return new UpdateAuctionDto()
-        {
-            Make = "testMake",
-            Model = "testModel",
-            Mileage = 10,
-            Year = 20,
-            Color = "testColor",
-        };
     }
     #endregion
 }
