@@ -67,7 +67,6 @@ export default function BidList({ user, auction }: Props) {
       </div>
     );
   } else {
-    console.log(open, user);
     return (
       <div className="rounded-lg shadow-md">
         <div className="py-2 px-4 bg-white">
