@@ -40,8 +40,9 @@ public class BidsController : ControllerBase
         if (auction == null)
         {
             // 2. If it doesn't exist on this service's database, try to find it in the auction service.
-            // TODO: Check with auction service if the auction exists.
-            return NotFound();
+            auction = this._grpcClient.GetAuction(auctionId);
+            if(auction == null)
+                return NotFound();
         }
 
         // 3. Check the seller is not the one who makes the bid.
